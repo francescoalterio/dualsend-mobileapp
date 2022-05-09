@@ -1,11 +1,16 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View } from "react-native";
+import Constants from "expo-constants";
+import Explorer from "./pages/Explorer";
 
 export default function App() {
+  const [serverIP, setServerIP] = useState("192.168.1.7:3000");
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
       <StatusBar style="auto" />
+      <Explorer serverIP={serverIP} />
     </View>
   );
 }
@@ -13,8 +18,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: Constants.statusBarHeight,
+    backgroundColor: "#1f1f1f",
+    paddingBottom: 20,
   },
 });
