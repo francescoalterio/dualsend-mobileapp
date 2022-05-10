@@ -64,7 +64,7 @@ const Explorer = ({ serverIP }) => {
             handlePress={returnDir}
           />
         ) : undefined}
-        <DobleButton serverIP={serverIP} path={path} />
+        <DobleButton serverIP={serverIP} path={path} setData={setData} />
       </View>
       {data && (
         <>

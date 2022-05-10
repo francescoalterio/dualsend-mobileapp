@@ -7,14 +7,40 @@ import axios from "axios";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 
-const DobleButton = ({ serverIP, path }) => {
+const DobleButton = ({ serverIP, path, setData }) => {
   const sendFile = async () => {
-    const result = await DocumentPicker.getDocumentAsync();
-    console.log(result);
+    const file = await DocumentPicker.getDocumentAsync();
 
-    const data = new FormData();
-    data.append("file", result.file);
-    axios.post(`http://${serverIP}/upload/${path}`, data);
+    const response = await FileSystem.uploadAsync(
+      `http://${serverIP}/upload/${path}`,
+      file.uri,
+      {
+        httpMethod: "POST",
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        fieldName: "file",
+      }
+    );
+    const result = await JSON.parse(response.body);
+    const directories = result.content.directories.map((dir) => {
+      return {
+        name: dir,
+        type: "directory",
+        path: `${path}/${dir}`,
+      };
+    });
+
+    const files = result.content.files.map((file) => {
+      return {
+        name: file,
+        type: "file",
+        path: `${path}/${file}`,
+      };
+    });
+
+    setData([...directories, ...files]);
   };
 
   return (
