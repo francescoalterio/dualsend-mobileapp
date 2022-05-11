@@ -95,6 +95,8 @@ const Explorer = ({ serverIP }) => {
                     icon={
                       <FontAwesomeIcon icon={faFile} color="white" size={20} />
                     }
+                    path={path}
+                    serverIP={serverIP}
                   />
                 );
               }
