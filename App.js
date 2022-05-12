@@ -18,14 +18,19 @@ export default function App() {
       const serverIP = await AsyncStorage.getItem("dualServerIP");
       if (serverIP) {
         setIsLoading(true);
-        axios.get(`http://${serverIP}`).then((res) => {
-          if (res.status === 200) {
-            setTimeout(() => {
-              setIsLoading(false);
-              setServerIP(serverIP);
-            }, 1500);
-          }
-        });
+        axios
+          .get(`http://${serverIP}`)
+          .then((res) => {
+            if (res.status === 200) {
+              setTimeout(() => {
+                setIsLoading(false);
+                setServerIP(serverIP);
+              }, 1500);
+            }
+          })
+          .catch((err) => {
+            setIsLoading(false);
+          });
       }
     };
     getServerIP();
