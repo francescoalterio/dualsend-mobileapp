@@ -14,67 +14,75 @@ import axios from "axios";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 
-const DobleButton = ({ serverIP, path, setData }) => {
+const DobleButton = ({ serverIP, path, setData, setError }) => {
   const [nameDirectory, setNameDirectory] = useState("");
   const [createDirectory, setCreateDirectory] = useState(false);
 
   const sendFile = async () => {
-    const file = await DocumentPicker.getDocumentAsync();
+    try {
+      const file = await DocumentPicker.getDocumentAsync();
 
-    const response = await FileSystem.uploadAsync(
-      `http://${serverIP}/upload/${path}`,
-      file.uri,
-      {
-        httpMethod: "POST",
-        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        fieldName: "file",
-      }
-    );
-    const result = await JSON.parse(response.body);
-    const directories = result.content.directories.map((dir) => {
-      return {
-        name: dir,
-        type: "directory",
-        path: `${path}/${dir}`,
-      };
-    });
+      const response = await FileSystem.uploadAsync(
+        `http://${serverIP}/upload/${path}`,
+        file.uri,
+        {
+          httpMethod: "POST",
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          fieldName: "file",
+        }
+      );
+      const result = await JSON.parse(response.body);
+      const directories = result.content.directories.map((dir) => {
+        return {
+          name: dir,
+          type: "directory",
+          path: `${path}/${dir}`,
+        };
+      });
 
-    const files = result.content.files.map((file) => {
-      return {
-        name: file,
-        type: "file",
-        path: `${path}/${file}`,
-      };
-    });
+      const files = result.content.files.map((file) => {
+        return {
+          name: file,
+          type: "file",
+          path: `${path}/${file}`,
+        };
+      });
 
-    setData([...directories, ...files]);
+      setData([...directories, ...files]);
+    } catch (error) {
+      setError("No se ha podido cargar el archivo");
+    }
   };
 
   const handleCreateDirectory = async () => {
-    const response = await axios.post(`http://${serverIP}/create/${path}`, {
-      name: nameDirectory,
-    });
-    const directories = response.data.content.directories.map((dir) => {
-      return {
-        name: dir,
-        type: "directory",
-        path: `${path}/${dir}`,
-      };
-    });
+    try {
+      const response = await axios.post(`http://${serverIP}/create/${path}`, {
+        name: nameDirectory,
+      });
+      const directories = response.data.content.directories.map((dir) => {
+        return {
+          name: dir,
+          type: "directory",
+          path: `${path}/${dir}`,
+        };
+      });
 
-    const files = response.data.content.files.map((file) => {
-      return {
-        name: file,
-        type: "file",
-        path: `${path}/${file}`,
-      };
-    });
+      const files = response.data.content.files.map((file) => {
+        return {
+          name: file,
+          type: "file",
+          path: `${path}/${file}`,
+        };
+      });
 
-    setData([...directories, ...files]);
-    setCreateDirectory(false);
+      setData([...directories, ...files]);
+      setCreateDirectory(false);
+    } catch (error) {
+      setError("No se ha podido crear el directorio");
+    }
   };
 
   return (

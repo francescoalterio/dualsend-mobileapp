@@ -4,17 +4,21 @@ import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 
-const File = ({ name, icon, path, serverIP }) => {
+const File = ({ name, icon, path, serverIP, setError }) => {
   const download = async () => {
-    const localUri = FileSystem.cacheDirectory + name;
-    await FileSystem.downloadAsync(
-      `http://${serverIP}/get/${path}-${name}`,
-      localUri
-    ).then(({ uri }) => {
-      console.log("Finished downloading to ", uri);
-    });
+    try {
+      const localUri = FileSystem.cacheDirectory + name;
+      await FileSystem.downloadAsync(
+        `http://${serverIP}/get/${path}-${name}`,
+        localUri
+      ).then(({ uri }) => {
+        console.log("Finished downloading to ", uri);
+      });
 
-    await Sharing.shareAsync(localUri);
+      await Sharing.shareAsync(localUri);
+    } catch (error) {
+      setError("No se ha podido descargar el archivo");
+    }
   };
 
   return (

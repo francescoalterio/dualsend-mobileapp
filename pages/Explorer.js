@@ -11,31 +11,38 @@ import {
   faFile,
   faArrowTurnUp,
 } from "@fortawesome/free-solid-svg-icons";
+import ErrorAlert from "../components/ErrorAlert";
 
 const Explorer = ({ serverIP }) => {
   const [data, setData] = useState([]);
   const [path, setPath] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://${serverIP}/${path}`).then((response) => {
-      const directories = response.data.content.directories.map((dir) => {
-        return {
-          name: dir,
-          type: "directory",
-          path: `${path}/${dir}`,
-        };
-      });
+    axios
+      .get(`http://${serverIP}/${path}`)
+      .then((response) => {
+        const directories = response.data.content.directories.map((dir) => {
+          return {
+            name: dir,
+            type: "directory",
+            path: `${path}/${dir}`,
+          };
+        });
 
-      const files = response.data.content.files.map((file) => {
-        return {
-          name: file,
-          type: "file",
-          path: `${path}/${file}`,
-        };
-      });
+        const files = response.data.content.files.map((file) => {
+          return {
+            name: file,
+            type: "file",
+            path: `${path}/${file}`,
+          };
+        });
 
-      setData([...directories, ...files]);
-    });
+        setData([...directories, ...files]);
+      })
+      .catch((error) => {
+        setError("No se ha podido entrar en el directorio");
+      });
   }, [path]);
 
   const navigate = (name) => {
@@ -64,7 +71,12 @@ const Explorer = ({ serverIP }) => {
             handlePress={returnDir}
           />
         ) : undefined}
-        <DobleButton serverIP={serverIP} path={path} setData={setData} />
+        <DobleButton
+          serverIP={serverIP}
+          path={path}
+          setData={setData}
+          setError={setError}
+        />
       </View>
       {data && (
         <>
@@ -97,6 +109,7 @@ const Explorer = ({ serverIP }) => {
                     }
                     path={path}
                     serverIP={serverIP}
+                    setError={setError}
                   />
                 );
               }
@@ -105,6 +118,7 @@ const Explorer = ({ serverIP }) => {
           />
         </>
       )}
+      <ErrorAlert error={error} />
     </>
   );
 };
